@@ -1,5 +1,6 @@
 # Built application files
 *.apk
+*.ap_
 *.aab
 
 # Files for the ART/Dalvik VM
@@ -45,7 +46,7 @@ captures/
 # Android Studio 3 in .gitignore file.
 .idea/caches
 .idea/modules.xml
-# Comment next line if keeping position of elements in Navigation Editor is relevant for you
+# Comment next line if keeping position of elements in Navigation Editor is desired
 .idea/navEditor.xml
 
 # Keystore files
@@ -88,6 +89,12 @@ lint/tmp/
 # macOS
 .DS_Store
 
-# Gradle Wrapper
-!gradle/wrapper/gradle-wrapper.jar
-!gradle/wrapper/gradle-wrapper.properties
+# Temporary files
+*~
+*.tmp
+*.bak
+
+# IDE
+.vscode/
+*.swp
+*.swo
