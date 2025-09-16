@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">消息转发器</string>
+    
+    <!-- 通用 -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="settings">设置</string>
+    <string name="help">帮助</string>
+    
+    <!-- 主界面 -->
+    <string name="forwarding_status">转发状态</string>
+    <string name="service_running">服务运行中</string>
+    <string name="service_stopped">服务未运行</string>
+    <string name="last_active">上次活动</string>
+    <string name="never">从未</string>
+    <string name="today_count">今日转发</string>
+    <string name="total_count">总转发数</string>
+    
+    <!-- 邮件配置 -->
+    <string name="email_config">邮件配置</string>
+    <string name="smtp_server">SMTP服务器</string>
+    <string name="smtp_port">端口</string>
+    <string name="encryption">加密方式</string>
+    <string name="sender_email">发件人邮箱</string>
+    <string name="sender_password">邮箱密码/授权码</string>
+    <string name="recipient_email">收件人邮箱</string>
+    <string name="save_config">保存配置</string>
+    
+    <!-- 转发历史 -->
+    <string name="forwarding_history">转发历史</string>
+    <string name="clear_history">清空历史</string>
+    <string name="no_history">暂无转发记录</string>
+    <string name="no_history_desc">开启转发服务后，收到的消息将显示在这里</string>
+    <string name="forward_success">转发成功</string>
+    <string name="forward_failed">转发失败</string>
+    <string name="forward_pending">发送中...</string>
+    <string name="view_details">查看详情</string>
+    
+    <!-- 使用说明 -->
+    <string name="usage_guide">使用说明</string>
+    <string name="step_1">配置您的邮箱信息，包括SMTP服务器、端口和认证信息</string>
+    <string name="step_2">开启顶部的转发开关，启动消息监控服务</string>
+    <string name="step_3">所有收到的消息将自动转发至指定邮箱</string>
+    <string name="step_4">转发历史记录将保存在本地，可随时查看</string>
+    
+    <!-- 提示消息 -->
+    <string name="config_saved">配置保存成功</string>
+    <string name="service_started">转发服务已启动</string>
+    <string name="service_stopped_msg">转发服务已停止</string>
+    <string name="invalid_config">请检查邮箱配置信息</string>
+    <string name="need_notification_permission">请先开启通知访问权限</string>
+    <string name="need_complete_config">请先填写完整的邮箱配置</string>
+    <string name="history_cleared">历史记录已清空</string>
+    
+    <!-- 权限相关 -->
+    <string name="notification_permission_title">需要通知访问权限</string>
+    <string name="notification_permission_message">为了监听并转发通知消息，请授予通知访问权限。</string>
+    <string name="go_to_settings">去设置</string>
+    <string name="later">稍后</string>
+    
+    <!-- 帮助内容 -->
+    <string name="help_title">使用帮助</string>
+    <string name="clear_history_title">清空历史</string>
+    <string name="clear_history_message">确定要清空所有转发历史吗？此操作不可恢复。</string>
+    <string name="message_details">消息详情</string>
+    
+    <!-- 加密方式 -->
+    <string name="encryption_tls">TLS</string>
+    <string name="encryption_ssl">SSL</string>
+    <string name="encryption_none">无</string>
+</resources>
