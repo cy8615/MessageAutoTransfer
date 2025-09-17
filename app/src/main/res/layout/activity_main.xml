@@ -13,58 +13,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- 顶部导航栏 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@android:color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_message"
-                    android:tint="#165DFF"
-                    android:layout_marginEnd="12dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="消息转发器"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#1D2129" />
-
-                <ImageButton
-                    android:id="@+id/btn_help"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_help"
-                    android:tint="#4E5969"
-                    android:layout_marginEnd="8dp" />
-
-                <ImageButton
-                    android:id="@+id/btn_settings"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_settings"
-                    android:tint="#4E5969" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
 
         <!-- 转发状态卡片 -->
         <androidx.cardview.widget.CardView
@@ -81,13 +29,20 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- 标题和开关 -->
+                <!-- 标题、帮助设置按钮和开关 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_message"
+                        android:tint="#165DFF"
+                        android:layout_marginEnd="12dp" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -98,7 +53,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="转发状态"
+                            android:text="消息转发器"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="#1D2129" />
@@ -113,12 +68,30 @@
 
                     </LinearLayout>
 
+                    <ImageButton
+                        android:id="@+id/btn_help"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_help"
+                        android:tint="#4E5969"
+                        android:layout_marginEnd="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/btn_settings"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_settings"
+                        android:tint="#4E5969"
+                        android:layout_marginEnd="8dp" />
+
                     <Switch
                         android:id="@+id/switch_service"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:thumbTint="#FFFFFF"
-                        android:trackTint="#E5E6EB"
+                        android:track="@drawable/switch_track"
                         tools:ignore="UseSwitchCompatOrMaterialCode" />
 
                 </LinearLayout>
@@ -292,7 +265,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="端口"
-                            android:text="587"
+                            android:text="465"
                             android:inputType="number" />
 
                     </com.google.android.material.textfield.TextInputLayout>
@@ -311,7 +284,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="加密方式"
-                            android:text="TLS"
+                            android:text="SSL"
                             android:inputType="none" />
 
                     </com.google.android.material.textfield.TextInputLayout>

@@ -40,4 +40,14 @@
         <item name="cardElevation">4dp</item>
         <item name="cardBackgroundColor">@android:color/white</item>
     </style>
+    
+    <!-- NoActionBar theme -->
+    <style name="Theme.MessageAutoTransfer.NoActionBar" parent="Theme.MessageAutoTransfer">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 </resources>

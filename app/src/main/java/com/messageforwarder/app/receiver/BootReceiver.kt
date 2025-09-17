@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.messageforwarder.app.data.ConfigManager
+import com.messageforwarder.app.service.ForwardingService
 
 class BootReceiver : BroadcastReceiver() {
     
@@ -26,8 +27,8 @@ class BootReceiver : BroadcastReceiver() {
                 // 如果服务之前是启用状态，开机后自动恢复
                 if (configManager.isServiceEnabled()) {
                     Log.d(TAG, "Service was enabled, restoring state")
-                    // 这里可以添加额外的恢复逻辑，比如显示通知等
-                    // 实际的服务恢复会在用户打开APP或系统检测到通知监听器时自动进行
+                    // 启动前台服务确保后台运行
+                    ForwardingService.startService(context)
                 }
             }
         }

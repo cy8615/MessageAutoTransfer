@@ -15,6 +15,15 @@
     
     <!-- 开机自启权限 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- 前台服务权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    
+    <!-- 电池优化白名单权限 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    
+    <!-- 系统弹窗权限 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -31,7 +40,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.MessageAutoTransfer">
+            android:theme="@style/Theme.MessageAutoTransfer.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -52,6 +62,12 @@
         <service
             android:name=".service.EmailService"
             android:exported="false" />
+        
+        <!-- 前台服务 -->
+        <service
+            android:name=".service.ForwardingService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
         
         <!-- 开机启动接收器 -->
         <receiver

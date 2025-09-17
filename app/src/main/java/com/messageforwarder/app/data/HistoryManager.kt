@@ -12,6 +12,7 @@ class HistoryManager private constructor(context: Context) {
         private const val PREFS_NAME = "message_forwarder_history"
         private const val KEY_HISTORY = "history"
         private const val MAX_HISTORY_SIZE = 100 // 最多保存100条记录
+        private const val PAGE_SIZE = 10 // 每页10条记录
         
         @Volatile
         private var INSTANCE: HistoryManager? = null
@@ -119,6 +120,30 @@ class HistoryManager private constructor(context: Context) {
     fun getSuccessCount(): Int {
         synchronized(records) {
             return records.count { it.status == ForwardRecord.Status.SUCCESS }
+        }
+    }
+    
+    fun getRecordsByPage(page: Int): List<ForwardRecord> {
+        synchronized(records) {
+            val startIndex = page * PAGE_SIZE
+            val endIndex = minOf(startIndex + PAGE_SIZE, records.size)
+            return if (startIndex < records.size) {
+                records.subList(startIndex, endIndex)
+            } else {
+                emptyList()
+            }
+        }
+    }
+    
+    fun getTotalPages(): Int {
+        synchronized(records) {
+            return (records.size + PAGE_SIZE - 1) / PAGE_SIZE
+        }
+    }
+    
+    fun hasMorePages(currentPage: Int): Boolean {
+        synchronized(records) {
+            return (currentPage + 1) * PAGE_SIZE < records.size
         }
     }
 }

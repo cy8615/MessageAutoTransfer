@@ -8,8 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.View
@@ -25,6 +27,7 @@ import com.messageforwarder.app.data.HistoryManager
 import com.messageforwarder.app.model.EmailConfig
 import com.messageforwarder.app.model.ForwardRecord
 import com.messageforwarder.app.service.NotificationListenerService
+import com.messageforwarder.app.service.ForwardingService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.*
@@ -36,11 +39,14 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_NOTIFICATION_PERMISSION = 1001
         private const val REQUEST_POST_NOTIFICATIONS = 1002
+        private const val REQUEST_BATTERY_OPTIMIZATION = 1003
     }
     
     private lateinit var configManager: ConfigManager
     private lateinit var historyManager: HistoryManager
     private lateinit var historyAdapter: HistoryAdapter
+    private var currentPage = 0
+    private var allRecords = mutableListOf<ForwardRecord>()
     
     // UI组件
     private lateinit var switchService: Switch
@@ -140,16 +146,37 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun setupEncryptionSpinner() {
-        val encryptionOptions = arrayOf("TLS", "SSL", "无")
+        val encryptionOptions = arrayOf("SSL", "TLS", "无")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, encryptionOptions)
         spinnerEncryption.setAdapter(adapter)
-        spinnerEncryption.setText("TLS", false)
+        spinnerEncryption.setText("SSL", false)
+        
+        // 设置加密方式变化监听器
+        spinnerEncryption.setOnItemClickListener { _, _, position, _ ->
+            updatePortBasedOnEncryption(position)
+        }
+        
+        // 设置初始端口
+        updatePortBasedOnEncryption(0)
+    }
+    
+    private fun updatePortBasedOnEncryption(position: Int) {
+        when (position) {
+            0 -> etSmtpPort.setText("465") // SSL
+            1 -> etSmtpPort.setText("587") // TLS
+            2 -> etSmtpPort.setText("25")  // 无加密
+        }
     }
     
     private fun setupHistoryRecyclerView() {
-        historyAdapter = HistoryAdapter { record ->
-            showRecordDetails(record)
-        }
+        historyAdapter = HistoryAdapter(
+            onItemClick = { record ->
+                showRecordDetails(record)
+            },
+            onLoadMore = {
+                loadMoreHistory()
+            }
+        )
         rvHistory.layoutManager = LinearLayoutManager(this)
         rvHistory.adapter = historyAdapter
     }
@@ -186,9 +213,17 @@ class MainActivity : AppCompatActivity() {
             
             configManager.setServiceEnabled(true)
             configManager.updateLastActive()
+            
+            // 启动前台服务确保锁屏后仍能运行
+            ForwardingService.startService(this)
+            
             showToast("转发服务已启动")
         } else {
             configManager.setServiceEnabled(false)
+            
+            // 停止前台服务
+            ForwardingService.stopService(this)
+            
             showToast("转发服务已停止")
         }
         
@@ -217,9 +252,9 @@ class MainActivity : AppCompatActivity() {
             smtpServer = etSmtpServer.text.toString().trim(),
             smtpPort = etSmtpPort.text.toString().trim(),
             encryption = when (spinnerEncryption.text.toString()) {
-                "SSL" -> "ssl"
+                "TLS" -> "tls"
                 "无" -> "none"
-                else -> "tls"
+                else -> "ssl"
             },
             senderEmail = etSenderEmail.text.toString().trim(),
             senderPassword = etSenderPassword.text.toString().trim(),
@@ -231,11 +266,12 @@ class MainActivity : AppCompatActivity() {
         val config = configManager.getEmailConfig()
         etSmtpServer.setText(config.smtpServer)
         etSmtpPort.setText(config.smtpPort)
-        spinnerEncryption.setText(when (config.encryption) {
-            "ssl" -> "SSL"
+        val encryptionText = when (config.encryption) {
+            "tls" -> "TLS"
             "none" -> "无"
-            else -> "TLS"
-        }, false)
+            else -> "SSL"
+        }
+        spinnerEncryption.setText(encryptionText, false)
         etSenderEmail.setText(config.senderEmail)
         etSenderPassword.setText(config.senderPassword)
         etRecipientEmail.setText(config.recipientEmail)
@@ -280,10 +316,14 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun loadHistory() {
-        val records = historyManager.getRecentRecords(10)
-        historyAdapter.submitList(records)
+        currentPage = 0
+        allRecords.clear()
+        val records = historyManager.getRecordsByPage(currentPage)
+        allRecords.addAll(records)
+        historyAdapter.submitList(allRecords.toList())
+        historyAdapter.setLoading(false)
         
-        if (records.isEmpty()) {
+        if (allRecords.isEmpty()) {
             layoutEmptyHistory.visibility = View.VISIBLE
             rvHistory.visibility = View.GONE
         } else {
@@ -292,9 +332,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun loadMoreHistory() {
+        if (historyManager.hasMorePages(currentPage)) {
+            currentPage++
+            val newRecords = historyManager.getRecordsByPage(currentPage)
+            allRecords.addAll(newRecords)
+            historyAdapter.submitList(allRecords.toList())
+        }
+        historyAdapter.setLoading(false)
+    }
+    
     private fun showRecordDetails(record: ForwardRecord) {
         val message = buildString {
-            appendLine("应用: ${record.sender}")
+            appendLine("发送人: ${record.sender}")
             if (record.title.isNotEmpty()) {
                 appendLine("标题: ${record.title}")
             }
@@ -380,6 +430,43 @@ class MainActivity : AppCompatActivity() {
         // 检查通知监听权限
         if (!isNotificationServiceEnabled()) {
             showNotificationPermissionDialog()
+        }
+        
+        // 检查电池优化白名单
+        checkBatteryOptimization()
+    }
+    
+    private fun checkBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+                showBatteryOptimizationDialog()
+            }
+        }
+    }
+    
+    private fun showBatteryOptimizationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("电池优化设置")
+            .setMessage("为了确保消息转发服务在锁屏后仍能正常运行，建议将应用加入电池优化白名单。")
+            .setPositiveButton("去设置") { _, _ ->
+                requestBatteryOptimizationWhitelist()
+            }
+            .setNegativeButton("稍后", null)
+            .show()
+    }
+    
+    private fun requestBatteryOptimizationWhitelist() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivityForResult(intent, REQUEST_BATTERY_OPTIMIZATION)
+            } catch (e: Exception) {
+                // 如果无法打开设置页面，引导用户手动设置
+                showToast("请手动在系统设置中将应用加入电池优化白名单")
+            }
         }
     }
     

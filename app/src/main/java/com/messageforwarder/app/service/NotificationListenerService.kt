@@ -176,10 +176,18 @@ class NotificationListenerService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         Log.d(TAG, "NotificationListenerService connected")
+        
+        // 启动前台服务确保后台运行
+        ForwardingService.startService(this)
     }
     
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         Log.d(TAG, "NotificationListenerService disconnected")
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "NotificationListenerService destroyed")
     }
 }

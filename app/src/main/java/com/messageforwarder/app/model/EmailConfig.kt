@@ -2,8 +2,8 @@ package com.messageforwarder.app.model
 
 data class EmailConfig(
     val smtpServer: String = "smtp.qq.com",
-    val smtpPort: String = "587",
-    val encryption: String = "tls",
+    val smtpPort: String = "465",
+    val encryption: String = "ssl",
     val senderEmail: String = "",
     val senderPassword: String = "",
     val recipientEmail: String = ""

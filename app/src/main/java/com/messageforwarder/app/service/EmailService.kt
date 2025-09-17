@@ -175,6 +175,11 @@ class EmailService : Service() {
     private fun updateRecordStatus(recordId: String, status: ForwardRecord.Status, error: String?) {
         historyManager.updateRecordStatus(recordId, status, error)
         
+        // 如果发送成功，更新统计
+        if (status == ForwardRecord.Status.SUCCESS) {
+            configManager.incrementTodayCount()
+        }
+        
         // 广播状态更新
         val intent = Intent("com.messageforwarder.app.EMAIL_STATUS_UPDATE").apply {
             putExtra("record_id", recordId)
