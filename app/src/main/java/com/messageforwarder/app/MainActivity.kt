@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +29,7 @@ import com.messageforwarder.app.model.EmailConfig
 import com.messageforwarder.app.model.ForwardRecord
 import com.messageforwarder.app.service.NotificationListenerService
 import com.messageforwarder.app.service.ForwardingService
+import com.messageforwarder.app.service.ServiceMonitor
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.*
@@ -69,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvHistory: RecyclerView
     private lateinit var layoutEmptyHistory: LinearLayout
     private lateinit var tvClearHistory: TextView
+    private lateinit var btnLoadMore: MaterialButton
     
     // 广播接收器
     private val notificationReceiver = object : BroadcastReceiver() {
@@ -139,6 +142,7 @@ class MainActivity : AppCompatActivity() {
         rvHistory = findViewById(R.id.rv_history)
         layoutEmptyHistory = findViewById(R.id.layout_empty_history)
         tvClearHistory = findViewById(R.id.tv_clear_history)
+        btnLoadMore = findViewById(R.id.btn_load_more)
         
         // 帮助和设置按钮
         findViewById<ImageButton>(R.id.btn_help).setOnClickListener { showHelpDialog() }
@@ -172,13 +176,15 @@ class MainActivity : AppCompatActivity() {
         historyAdapter = HistoryAdapter(
             onItemClick = { record ->
                 showRecordDetails(record)
-            },
-            onLoadMore = {
-                loadMoreHistory()
             }
         )
         rvHistory.layoutManager = LinearLayoutManager(this)
         rvHistory.adapter = historyAdapter
+        
+        // 设置"查看更多"按钮点击事件
+        btnLoadMore.setOnClickListener {
+            loadMoreHistory()
+        }
     }
     
     private fun setupClickListeners() {
@@ -321,14 +327,20 @@ class MainActivity : AppCompatActivity() {
         val records = historyManager.getRecordsByPage(currentPage)
         allRecords.addAll(records)
         historyAdapter.submitList(allRecords.toList())
-        historyAdapter.setLoading(false)
         
         if (allRecords.isEmpty()) {
             layoutEmptyHistory.visibility = View.VISIBLE
             rvHistory.visibility = View.GONE
+            btnLoadMore.visibility = View.GONE
         } else {
             layoutEmptyHistory.visibility = View.GONE
             rvHistory.visibility = View.VISIBLE
+            // 显示或隐藏"查看更多"按钮
+            btnLoadMore.visibility = if (historyManager.hasMorePages(currentPage)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     }
     
@@ -338,8 +350,14 @@ class MainActivity : AppCompatActivity() {
             val newRecords = historyManager.getRecordsByPage(currentPage)
             allRecords.addAll(newRecords)
             historyAdapter.submitList(allRecords.toList())
+            
+            // 更新"查看更多"按钮的显示状态
+            btnLoadMore.visibility = if (historyManager.hasMorePages(currentPage)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
-        historyAdapter.setLoading(false)
     }
     
     private fun showRecordDetails(record: ForwardRecord) {
@@ -519,6 +537,42 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateServiceStatus()
+        
+        // 检查服务状态并自动恢复
+        checkAndRestoreServices()
+    }
+    
+    private fun checkAndRestoreServices() {
+        if (configManager.isServiceEnabled()) {
+            // 检查通知监听器是否启用
+            if (!isNotificationServiceEnabled()) {
+                showToast("通知访问权限已失效，请重新开启")
+                switchService.isChecked = false
+                configManager.setServiceEnabled(false)
+                return
+            }
+            
+            // 检查前台服务是否运行
+            if (!isServiceRunning(ForwardingService::class.java)) {
+                Log.w("MainActivity", "ForwardingService not running, restarting...")
+                ForwardingService.startService(this)
+            }
+            
+            // 启动服务监控
+            ServiceMonitor.startMonitoring(this)
+        }
+    }
+    
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        val runningServices = activityManager.getRunningServices(Integer.MAX_VALUE)
+        
+        for (serviceInfo in runningServices) {
+            if (serviceClass.name == serviceInfo.service.className) {
+                return true
+            }
+        }
+        return false
     }
     
     private fun showToast(message: String) {

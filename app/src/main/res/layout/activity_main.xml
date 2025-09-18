@@ -257,6 +257,28 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
+                        app:startIconDrawable="@drawable/ic_lock"
+                        app:hintTextColor="#4E5969"
+                        app:endIconMode="dropdown_menu"
+                        app:endIconTint="#4E5969">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/spinner_encryption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="加密方式"
+                            android:text="SSL"
+                            android:inputType="none"
+                            android:focusable="false"
+                            android:clickable="true" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
                         app:startIconDrawable="@drawable/ic_port"
                         app:hintTextColor="#4E5969">
 
@@ -267,25 +289,6 @@
                             android:hint="端口"
                             android:text="465"
                             android:inputType="number" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        app:startIconDrawable="@drawable/ic_lock"
-                        app:hintTextColor="#4E5969"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinner_encryption"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="加密方式"
-                            android:text="SSL"
-                            android:inputType="none" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -425,6 +428,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false" />
+                
+                <!-- 查看更多按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_load_more"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="查看更多"
+                    android:textSize="14sp"
+                    android:textColor="#165DFF"
+                    android:backgroundTint="@android:color/transparent"
+                    android:visibility="gone"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="#165DFF"
+                    app:strokeWidth="1dp" />
 
                 <!-- 空状态 -->
                 <LinearLayout

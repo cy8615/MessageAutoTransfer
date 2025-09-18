@@ -11,11 +11,8 @@ import com.messageforwarder.app.R
 import com.messageforwarder.app.model.ForwardRecord
 
 class HistoryAdapter(
-    private val onItemClick: (ForwardRecord) -> Unit,
-    private val onLoadMore: () -> Unit = {}
+    private val onItemClick: (ForwardRecord) -> Unit
 ) : ListAdapter<ForwardRecord, HistoryAdapter.ViewHolder>(DiffCallback()) {
-    
-    private var isLoading = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -25,16 +22,6 @@ class HistoryAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
-        
-        // 当滚动到倒数第3个item时，触发加载更多
-        if (position >= itemCount - 3 && !isLoading) {
-            isLoading = true
-            onLoadMore()
-        }
-    }
-    
-    fun setLoading(loading: Boolean) {
-        isLoading = loading
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

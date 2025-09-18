@@ -179,15 +179,32 @@ class NotificationListenerService : NotificationListenerService() {
         
         // 启动前台服务确保后台运行
         ForwardingService.startService(this)
+        
+        // 启动服务监控
+        ServiceMonitor.startMonitoring(this)
+        
+        // 更新最后活动时间
+        configManager.updateLastActive()
     }
     
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        Log.d(TAG, "NotificationListenerService disconnected")
+        Log.w(TAG, "NotificationListenerService disconnected - this may cause service failure")
+        
+        // 通知监听器断开时，尝试重新启动服务
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            if (configManager.isServiceEnabled()) {
+                Log.d(TAG, "Attempting to restart services after disconnection")
+                ForwardingService.startService(this)
+            }
+        }, 5000) // 延迟5秒后尝试重启
     }
     
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "NotificationListenerService destroyed")
+        
+        // 停止服务监控
+        ServiceMonitor.stopMonitoring(this)
     }
 }

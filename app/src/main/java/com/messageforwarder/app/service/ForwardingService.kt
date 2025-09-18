@@ -50,6 +50,9 @@ class ForwardingService : Service() {
         // 启动前台服务
         startForeground(NOTIFICATION_ID, createNotification())
         
+        // 启动服务监控
+        ServiceMonitor.startMonitoring(this)
+        
         return START_STICKY // 服务被杀死后自动重启
     }
     
@@ -97,5 +100,8 @@ class ForwardingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "ForwardingService destroyed")
+        
+        // 停止服务监控
+        ServiceMonitor.stopMonitoring(this)
     }
 }
